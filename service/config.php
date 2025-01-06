@@ -1,14 +1,15 @@
-<?php 
+<?php
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "web_toko";
+$host = 'localhost'; 
+$user = 'root';      
+$password = '';      
+$dbname = 'user_management'; 
 
-// Membuat koneksi ke database
-$db = mysqli_connect($host, $user, $password, $db);
+// Membuat koneksi
+$conn = new mysqli($host, $user, $password, $dbname);
 
-// Periksa koneksi
-if (!$db) {
-    die("Connection failed: " . mysqli_connect_error());
+// Cek koneksi
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
 }
+?>
