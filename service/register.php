@@ -1,43 +1,23 @@
 <?php
+include 'config.php';
 
-include("config.php");
-
-if (isset($_POST['register'])) {
-    // Ambil data dari form input
-    $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Validasi input (pastikan tidak kosong)
-    if (empty($username) || empty($email) || empty($password)) {
-        header("Location: register.php?status=empty_fields");
-        exit();
-    }
+    // Hash password sebelum disimpan
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Hash password sebelum disimpan ke database
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    // Simpan data ke database
+    $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $username, $hashed_password);
 
-    // Buat query SQL menggunakan prepared statement
-    $sql = "INSERT INTO akun (username, email, password) VALUES ('$username', '$email', '$password')";
-    //$stmt = mysqli_prepare($db, $sql);
-
-    if ($stmt) {
-        // Bind parameter dan eksekusi
-        mysqli_stmt_bind_param($stmt, "sss", $username, $email, $hashedPassword);
-        $query = mysqli_stmt_execute($stmt);
-
-        // Periksa hasil query
-        if ($query) {
-            header("Location: dashboard.php?status=success");
-            exit();
-        } else {
-            header("Location: dashboard.php?status=fail");
-            exit();
-        }
+    if ($stmt->execute()) {
+        echo "Registrasi berhasil. Silakan <a href='login.php'>Login</a>";
     } else {
-        // Jika query gagal dipersiapkan
-        header("Location: dashboard.php?status=error");
-        exit();
+        echo "Error: " . $stmt->error;
     }
+
+    $stmt->close();
 }
-?>
